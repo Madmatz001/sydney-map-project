@@ -17,38 +17,37 @@
   <div id="map"></div>
 
   <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+  <script src="https://unpkg.com/tabletop@1.6.0/tabletop.js"></script>
   <script>
-    // Create the map centered on Sydney
-    var map = L.map('map').setView([-33.908, 151.210], 14);
+    var map = L.map('map').setView([-33.8688, 151.2093], 12);
 
-    // Add OpenStreetMap tile layer
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
       maxZoom: 19,
       attribution: '© OpenStreetMap'
     }).addTo(map);
 
-    // Project data
-    var projects = [
-      {
-        name: "Danks Street District",
-        location: [-33.908, 151.210],
-        developer: "DASCO",
-        description: "Contemporary terraces and sky homes. Mixed-use site with parks, eateries, and wellness amenities.",
-        link: "https://drive.google.com/drive/folders/1DdwlTl1ajZ8NiYrCaZaXqIGAPawi3mhy"
-      }
-    ];
+    function showMarkers(data) {
+      data.forEach(function(project) {
+        var lat = parseFloat(project.latitude);
+        var lng = parseFloat(project.longitude);
+        if (!isNaN(lat) && !isNaN(lng)) {
+          var marker = L.marker([lat, lng]).addTo(map);
+          marker.bindPopup(
+            `<div class='custom-popup'>
+              <strong>${project.name}</strong><br>
+              <em>Developer:</em> ${project.developer}<br>
+              ${project.description}<br>
+              <a href='${project.link}' target='_blank'>Open Project</a>
+            </div>`
+          );
+        }
+      });
+    }
 
-    // Add markers
-    projects.forEach(function(project) {
-      var marker = L.marker(project.location).addTo(map);
-      marker.bindPopup(
-        `<div class='custom-popup'>
-          <strong>${project.name}</strong><br>
-          <em>Developer:</em> ${project.developer}<br>
-          ${project.description}<br>
-          <a href='${project.link}' target='_blank'>Open PDF Folder</a>
-        </div>`
-      );
+    Tabletop.init({
+      key: 'https://docs.google.com/spreadsheets/d/18E2hVVCBpiDnHjY1unA31tS72FM6wEUiHXRAFw6SXEs/pubhtml',
+      simpleSheet: true,
+      callback: showMarkers
     });
   </script>
 </body>
