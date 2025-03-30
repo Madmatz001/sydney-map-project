@@ -19,43 +19,45 @@
   <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/tabletop@1.5.1/tabletop.min.js"></script>
   <script>
-    var map = L.map('map').setView([-33.8688, 151.2093], 12);
+    window.addEventListener("DOMContentLoaded", function () {
+      var map = L.map('map').setView([-33.8688, 151.2093], 12);
 
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-      maxZoom: 19,
-      attribution: '© OpenStreetMap'
-    }).addTo(map);
+      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        maxZoom: 19,
+        attribution: '© OpenStreetMap'
+      }).addTo(map);
 
-    function showMarkers(data) {
-      data.forEach(function(project, index) {
-        try {
-          var lat = parseFloat(project.latitude);
-          var lng = parseFloat(project.longitude);
+      function showMarkers(data) {
+        data.forEach(function(project, index) {
+          try {
+            var lat = parseFloat(project.latitude);
+            var lng = parseFloat(project.longitude);
 
-          if (!project.name || isNaN(lat) || isNaN(lng)) {
-            console.warn(`Skipped row ${index + 2}: Invalid lat/lng or missing name.`);
-            return;
+            if (!project.name || isNaN(lat) || isNaN(lng)) {
+              console.warn(`Skipped row ${index + 2}: Invalid lat/lng or missing name.`);
+              return;
+            }
+
+            var marker = L.marker([lat, lng]).addTo(map);
+            marker.bindPopup(
+              `<div class='custom-popup'>
+                <strong>${project.name}</strong><br>
+                <em>Developer:</em> ${project.developer}<br>
+                ${project.description}<br>
+                <a href='${project.link}' target='_blank'>Open Project</a>
+              </div>`
+            );
+          } catch (e) {
+            console.error(`Error processing row ${index + 2}:`, e);
           }
+        });
+      }
 
-          var marker = L.marker([lat, lng]).addTo(map);
-          marker.bindPopup(
-            `<div class='custom-popup'>
-              <strong>${project.name}</strong><br>
-              <em>Developer:</em> ${project.developer}<br>
-              ${project.description}<br>
-              <a href='${project.link}' target='_blank'>Open Project</a>
-            </div>`
-          );
-        } catch (e) {
-          console.error(`Error processing row ${index + 2}:`, e);
-        }
+      Tabletop.init({
+        key: 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTtPVZMaj5jL0SHgHAwuSAgj9BAmL2qeLzsT1_-1sxBjGMk01JEeJLeZQyyxXOkXGL9ft4PiG1dYCim/pubhtml',
+        simpleSheet: true,
+        callback: showMarkers
       });
-    }
-
-    Tabletop.init({
-      key: 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTtPVZMaj5jL0SHgHAwuSAgj9BAmL2qeLzsT1_-1sxBjGMk01JEeJLeZQyyxXOkXGL9ft4PiG1dYCim/pubhtml',
-      simpleSheet: true,
-      callback: showMarkers
     });
   </script>
 </body>
