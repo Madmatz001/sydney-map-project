@@ -27,10 +27,16 @@
     }).addTo(map);
 
     function showMarkers(data) {
-      data.forEach(function(project) {
-        var lat = parseFloat(project.latitude);
-        var lng = parseFloat(project.longitude);
-        if (!isNaN(lat) && !isNaN(lng)) {
+      data.forEach(function(project, index) {
+        try {
+          var lat = parseFloat(project.latitude);
+          var lng = parseFloat(project.longitude);
+
+          if (!project.name || isNaN(lat) || isNaN(lng)) {
+            console.warn(`Skipped row ${index + 2}: Invalid lat/lng or missing name.`);
+            return;
+          }
+
           var marker = L.marker([lat, lng]).addTo(map);
           marker.bindPopup(
             `<div class='custom-popup'>
@@ -40,6 +46,8 @@
               <a href='${project.link}' target='_blank'>Open Project</a>
             </div>`
           );
+        } catch (e) {
+          console.error(`Error processing row ${index + 2}:`, e);
         }
       });
     }
